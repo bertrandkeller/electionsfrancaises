@@ -1,0 +1,42 @@
+  {{ $departement := slice "01" }}
+  {{- $communesgeojson := $.Site.Data.communesgeojson -}}
+  {{- $communesgeo := $.Site.Data.communesgeo -}}
+  {{- $labelsgeojson := $.Site.Data.labels -}}
+
+  {{- $substancerhone2017 := $.Site.Data.substancerhone2017 -}}
+  {{- $substancebourgogne2017 := $.Site.Data.substancebourgogne2017 -}}
+  {{- $substance2017 := ($substancerhone2017) | ($substancebourgogne2017) -}}
+
+
+  {{- $.Scratch.Set "codepostalacheteur" slice | safeJS -}}
+  {{- range $substance2017 -}}
+      {{ $.Scratch.Add "codepostalacheteur" (slice .code_postal_acheteur) | safeJS }}
+  {{- end -}}
+
+  {{ $codepostalacheteur := $.Scratch.Get "codepostalacheteur" | uniq }}
+  {{- range $index, $s := $codepostalacheteur -}}
+      {{ $.Scratch.Set "value" "0" | safeJS }}
+      {{- $code := string (substr . 0 2) -}}
+      {{- if in $departement $code -}}
+        {{ range where $substance2017 ".code_postal_acheteur" "eq" . }}
+        {{- if eq .substance "glyphosate" -}}
+        {{- $quantite_substance := float .quantite_substance -}}
+        {{ $.Scratch.Set "value" (add (int ($.Scratch.Get "value")) $quantite_substance) | safeJS }}
+        {{- end -}}
+      {{ end }}
+
+      {{ if ge ($.Scratch.Get "value") "2500" }}
+        {{- $.Scratch.Set "colorSub" "#4f144b" | safeJS -}}
+      {{ else if ge ($.Scratch.Get "value") "1000" }}
+        {{- $.Scratch.Set "colorSub" "#865380" | safeJS -}}
+      {{ else if ge ($.Scratch.Get "value") "300" }}
+        {{- $.Scratch.Set "colorSub" "#bf93ba" | safeJS -}}
+      {{ else }}
+        {{- $.Scratch.Set "colorSub" "#fbd8f6" | safeJS -}}
+      {{- end -}}
+
+      {{- range $s := where $communesgeojson.features ".properties.code" "eq" . -}}
+          // geojson_Polygon.features.push({"type" : "Feature","properties": {"fill": "transparent","stroke-weight": "2"},"geometry": {{ .geometry }}});
+      {{ end }}
+      {{- end -}}
+  {{ end }}

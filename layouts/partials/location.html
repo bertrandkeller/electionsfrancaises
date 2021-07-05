@@ -1,0 +1,27 @@
+{{- $labelsgeojson := $.context.Site.Data.labels -}}
+{{- $.context.Scratch.Set "latOK" "FALSE" | safeJS -}}
+{{- warnf "---------" | safeJS -}}
+
+{{- if .geo.lat -}}{{- if not (eq .geo.lat "#N/A") -}}
+  {{- warnf "%s : %s - %s <= in files" $.context.Section $.code_insee $.commune | safeJS -}}
+  {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
+  var point = new google.maps.LatLng("{{ .geo.lat }}", "{{ .geo.lon }}");
+{{- end -}}{{ end }}
+
+{{ if eq ($.context.Scratch.Get "latOK") "FALSE" }}
+  {{- range $s := where $.context.Site.Data.coordonnees ".code_insee" "eq" (string $.code_insee) -}}
+    {{ if .latitude }}
+      {{- warnf "%s : %s - %s <= coordonnees.json" $.context.Section $.code_insee $.commune | safeJS -}}
+      var point = new google.maps.LatLng("{{ .latitude }}", "{{ .longitude }}");
+      {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{ if eq ($.context.Scratch.Get "latOK") "FALSE" }}
+  {{- range $s := where $labelsgeojson.features ".properties.nom" "eq" $.commune -}}
+  {{- warnf "%s : %s - %s <= labels.json" $.context.Section $.code_insee $.commune | safeJS -}}
+    var point = new google.maps.LatLng("{{ index .geometry.coordinates 1 }}", "{{ index .geometry.coordinates 0 }}");
+    {{- $.Scratch.Set "latOK" "TRUE" | safeJS -}}
+  {{- end -}}
+{{- end -}}

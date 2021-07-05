@@ -1,0 +1,76 @@
+{{- define "main" -}}
+  {{- $municipales2020 := $.Site.Data.municipales2020 -}}
+  {{- warnf "Generating Municipales 2020" | safeJS -}}
+  {{- $parti := (slice "LVEC" "LFI" "LECO") -}}
+  {{- $context := . -}}
+
+  {{ range $index, $p := (where $municipales2020 ".codenuance1" "in" $parti) }}
+    {{ $percent := math.Round (mul (div (float .voix1) (float .votants)) 100) }}
+    {{ if ge $percent 20 }}
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    var marker = createMarker(
+        point,
+        "<b>{{ replace .commune "'" "’" }}</b>",
+        "{{ $index }}",
+        "<b>{{ replace .commune "'" "’" }} - {{ .codenuance1 }}</b><br>Score: {{ $percent }}%",
+        "",
+        "#c3e1ba",
+    )
+    {{ end }}
+  {{ end }}
+
+  {{ range $index, $p := (where $municipales2020 ".codenuance2" "in" $parti) }}
+  {{ $percent := math.Round (mul (div (float .voix2) (float .votants)) 100) }}
+    {{ if ge $percent 20 }}
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    var marker = createMarker(
+        point,
+        "<b>{{ replace .commune "'" "’" }}</b>",
+        "{{ $index }}",
+        "<b>{{ replace .commune "'" "’" }} - {{ .codenuance2 }}</b><br>Score: {{ math.Round (mul (div (float .voix2) (float .votants)) 100) }}%",
+        "",
+        "#ec364b",
+    )
+    {{ end }}
+  {{ end }}
+
+  {{ range $index, $p := (where $municipales2020 ".codenuance3" "in" $parti) }}
+  {{ $percent := math.Round (mul (div (float .voix3) (float .votants)) 100) }}
+    {{ if ge $percent 20 }}
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    var marker = createMarker(
+        point,
+        "<b>{{ replace .commune "'" "’" }}</b>",
+        "{{ $index }}",
+        "<b>{{ replace .commune "'" "’" }} - {{ .codenuance3 }}</b><br>Score: {{ math.Round (mul (div (float .voix3) (float .votants)) 100) }}%",
+        "",
+        "#f7f8e6",
+    )
+    {{ end }}
+  {{ end }}
+{{- end -}}
+{{- define "sidebar" -}}
+<div class="side-bar">
+  <h1>Carte des votes radicaux<br><small>Municipales 2020</small></h1>
+  <h2>Liste des communes (scroll)</h2>
+  <div id="side-bar-content">
+      {{- $municipales2020 := $.Site.Data.municipales2020 -}}
+      {{- $parti := (slice "LVEC" "LFI" "LECO" "LDIV") -}}
+      {{ range $index, $p := (where $municipales2020 ".codenuance1" "in" $parti) }}
+      <div class="side-bar_element">
+        {{- .commune -}}
+      </div>
+      {{- end -}}
+      {{ range $index, $p := (where $municipales2020 ".codenuance2" "in" $parti) }}
+      <div class="side-bar_element">
+        {{- .commune -}}
+      </div>
+      {{- end -}}
+      {{ range $index, $p := (where $municipales2020 ".codenuance3" "in" $parti) }}
+      <div class="side-bar_element">
+        {{- .commune -}}
+      </div>
+      {{- end -}}
+  </div>
+</div>
+{{- end -}}

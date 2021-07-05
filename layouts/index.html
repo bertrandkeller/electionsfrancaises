@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+{{/* General variables */}}
+<html lang="{{ .Site.LanguageCode | default "fr" }}" dir="ltr" class="no-js">
+  <head>
+    {{ partial "site/head" . }}
+  </head>
+    <body style="margin:0px; padding:0px;" onload="initialize()">
+        <main class="site-main" role="main">
+            <div class="wrapper">
+                <h1 class="text-center">Cartographie des élections françaises</h1>
+                <br>
+                <ul class="list-unstyled text-center">
+                  {{ range .Site.RegularPages }}
+                    <li><h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2><hr></li>
+                  {{ end }}
+                </ul>
+            </div>
+        </main>
+    </body>
+</html>

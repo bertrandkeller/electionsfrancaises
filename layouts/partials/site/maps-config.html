@@ -1,0 +1,294 @@
+// this variable will collect the html which will eventually be placed in the side_bar
+var side_bar_html = "";
+
+// arrays to hold copies of the markers and html used by the side_bar
+// because the function closure trick doesnt work there
+var gmarkers = [];
+var map = null;
+var delay = 100;
+var markerclusterer = null;
+var directionDisplay;
+var directionsService = new google.maps.DirectionsService();
+var currentFeature_or_Features = null;
+
+let geojson_Polygon = {
+  "type": "FeatureCollection",
+  "features": []
+};
+
+// call Map Styles
+// Create a new StyledMapType object, passing it an array of styles,
+// and the name to be displayed on the map type control.
+const styledMapType = new google.maps.StyledMapType(
+  [{
+      "featureType": "administrative",
+      "elementType": "labels.text.fill",
+      "stylers": [{
+        "color": "#393939"
+      }]
+    },
+    {
+      "featureType": "landscape",
+      "elementType": "geometry.fill",
+      "stylers": [{
+        "color": "#f2f2f2"
+      }]
+    },
+    {
+      "featureType": "landscape.man_made",
+      "elementType": "all",
+      "stylers": [{
+        "saturation": "-100"
+      }]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "all",
+      "stylers": [{
+        "visibility": "on"
+      }]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "geometry.fill",
+      "stylers": [{
+          "visibility": "on"
+        },
+        {
+          "lightness": "5"
+        },
+        {
+          "gamma": "1.00"
+        }
+      ]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "labels",
+      "stylers": [{
+          "saturation": "-100"
+        },
+        {
+          "gamma": "0.90"
+        },
+        {
+          "lightness": "0"
+        }
+      ]
+    },
+    {
+      "featureType": "poi.school",
+      "elementType": "geometry.fill",
+      "stylers": [{
+          "visibility": "on"
+        },
+        {
+          "saturation": "-100"
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "all",
+      "stylers": [{
+          "saturation": "-100"
+        },
+        {
+          "lightness": 45
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "labels.text.fill",
+      "stylers": [{
+          "saturation": "0"
+        },
+        {
+          "lightness": "-15"
+        }
+      ]
+    },
+    {
+      "featureType": "road.highway",
+      "elementType": "labels",
+      "stylers": [{
+          "gamma": "0.63"
+        },
+        {
+          "saturation": "40"
+        },
+        {
+          "hue": "#97ff00"
+        }
+      ]
+    },
+    {
+      "featureType": "road.arterial",
+      "elementType": "labels.icon",
+      "stylers": [{
+        "visibility": "off"
+      }]
+    },
+    {
+      "featureType": "transit",
+      "elementType": "all",
+      "stylers": [{
+        "visibility": "simplified"
+      }]
+    },
+    {
+      "featureType": "transit",
+      "elementType": "labels",
+      "stylers": [{
+          "saturation": "-100"
+        },
+        {
+          "gamma": "0.90"
+        },
+        {
+          "lightness": "0"
+        }
+      ]
+    },
+    {
+      "featureType": "water",
+      "elementType": "all",
+      "stylers": [{
+          "color": "#9cd2dc"
+        },
+        {
+          "visibility": "on"
+        }
+      ]
+    }
+  ], {
+    name: 'Essentiel'
+  });
+
+
+// Create the map
+function initialize() {
+  directionsDisplay = new google.maps.DirectionsRenderer();
+  geocoder = new google.maps.Geocoder();
+  var bounds = new google.maps.LatLngBounds();
+  // Options
+  var myOptions = {
+    zoom: 10,
+    //center: new google.maps.LatLng(46.6207972, 4.8430915),
+    //center: new google.maps.LatLng(4.833333,46.3),
+    center: new google.maps.LatLng(48.533, 2.183),
+    mapTypeControl: false,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+      mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain', 'styled_map']
+    },
+    navigationControl: true,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+    // API_Key = AIzaSyBUzX9F8nEyUmKBJ0u4YNuKAeXT2RfkpZE
+  }
+  // Map
+  map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+  // Add geoJson polygons
+  map.data.addGeoJson(geojson_Polygon);
+  // Set styles for the map
+  map.data.setStyle(function (feature) {
+    var color = 'gray';
+    return /** @type {!google.maps.Data.StyleOptions} */ ({
+      fillColor: feature.getProperty('fill'),
+      strokeColor: "555",
+      strokeWeight: feature.getProperty('stroke-weight'),
+      fillOpacity: 0.6 //map.getZoom()<4?1:.1 // set the opacity to 1 when zoom<4 - otherwise set it to .1
+    });
+  });
+
+  map.set('lastZoom', map.getZoom());
+
+  // directionsDisplay.setMap(map);
+  // calcRoute();
+
+  // Start drawing a road
+  // function calcRoute() {
+  //   var request = {
+  //       origin: "Chalon-Sur-Saone",
+  //       destination: "Larajasse",
+  //       waypoints: [{location:new google.maps.LatLng(46.6054868, 4.8640255),stopover:false},
+  //                   {location:new google.maps.LatLng(46.5546, 4.82456),stopover:false},
+  //                   {location:new google.maps.LatLng(46.464, 4.83246),stopover:false},
+  //                   {location:new google.maps.LatLng(46.2198175, 4.8458111),stopover:false},
+  //                   {location:new google.maps.LatLng(46.099, 5.128410),stopover:false},
+  //                   {location:new google.maps.LatLng(45.4624294, 4.7676199),stopover:false},
+  //                   {location:new google.maps.LatLng(45.3625, 4.6862),stopover:false},
+  //                   {location:new google.maps.LatLng(45.5604, 4.66816),stopover:false}],
+  //       optimizeWaypoints: true,
+  //       travelMode: google.maps.DirectionsTravelMode.DRIVING
+  //   };
+  //   directionsService.route(request, function(response, status) {
+  //       if (status == google.maps.DirectionsStatus.OK) {
+  //         directionsDisplay.setDirections(response);
+  //         var route = response.routes[0];
+  //         var bounds = new google.maps.LatLngBounds();
+  //         var route = response.routes[0];
+  //         startLocation = new Object();
+  //         endLocation = new Object();
+  //         var polyline = new google.maps.Polyline({
+  //     path: [],
+  //     strokeColor: '#000000',
+  //     strokeWeight: 3
+  //   });
+  //   var legs = response.routes[0].legs;
+  //       for (i=0;i<legs.length;i++) {
+  //         if (i == 0) {
+  //           startLocation.latlng = legs[i].start_location;
+  //           startLocation.address = legs[i].start_address;
+  //         } else {
+  //           waypts[i] = new Object();
+  //           waypts[i].latlng = legs[i].start_location;
+  //           waypts[i].address = legs[i].start_address;
+  //         }
+  //         endLocation.latlng = legs[i].end_location;
+  //         endLocation.address = legs[i].end_address;
+  //         var steps = legs[i].steps;
+  //         for (j=0;j<steps.length;j++) {
+  //           var nextSegment = steps[j].path;
+  //           for (k=0;k<nextSegment.length;k++) {
+  //             polyline.getPath().push(nextSegment[k]);
+  //             bounds.extend(nextSegment[k]);
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       alert("directions response "+status);
+  //     }
+  //   });
+
+  // }
+  // End drawing a road
+
+  google.maps.event.addListener(map, 'zoom_changed', function () {
+    //do we need to update the style?
+    if (this.getZoom() < 4 !== this.get('lastZoom') < 4) {
+      map.data.setStyle(map.data.getStyle());
+    }
+    //update the property
+    this.set('lastZoom', this.getZoom());
+  });
+
+  // Event on polygon hover
+  map.data.addListener('mouseover', function (event) {
+    map.data.revertStyle();
+    map.data.overrideStyle(event.feature, {
+      strokeWeight: 2
+    });
+  });
+  map.data.addListener('mouseout', function (event) {
+    map.data.revertStyle();
+  });
+
+  // Associate the styled map with the MapTypeId and set it to display.
+  map.mapTypes.set('styled_map', styledMapType);
+  map.setMapTypeId('styled_map');
+
+  google.maps.event.addListener(map, 'click', function () {
+    infowindow.close();
+  });

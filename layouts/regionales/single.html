@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{{/* General variables */}}
+<html lang="{{ .Site.LanguageCode | default "fr" }}" dir="ltr" class="no-js">
+  <head>
+    {{ partial "site/head" . }}
+  </head>
+    <body style="margin:0px; padding:0px;" onload="initialize()">
+        <main class="site-main" role="main">
+            <div class="wrapper">
+                <h1 class="text-center">Cartographie des élections françaises</h1>
+                <br><br>
+                {{- range $index, $value := .Params.regionales -}}
+                {{- if ne $index 0 -}}, {{ end }}<strong><a href="{{ . }}">{{ . }}</a></strong>
+                {{- end -}}
+            </div>
+        </main>
+    </body>
+</html>

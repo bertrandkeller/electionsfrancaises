@@ -1,0 +1,60 @@
+// directionsDisplay.setMap(map);
+// calcRoute();
+
+// Start drawing a road
+// function calcRoute() {
+//   var request = {
+//       origin: "Chalon-Sur-Saone",
+//       destination: "Larajasse",
+//       waypoints: [{location:new google.maps.LatLng(46.6054868, 4.8640255),stopover:false},
+//                   {location:new google.maps.LatLng(46.5546, 4.82456),stopover:false},
+//                   {location:new google.maps.LatLng(46.464, 4.83246),stopover:false},
+//                   {location:new google.maps.LatLng(46.2198175, 4.8458111),stopover:false},
+//                   {location:new google.maps.LatLng(46.099, 5.128410),stopover:false},
+//                   {location:new google.maps.LatLng(45.4624294, 4.7676199),stopover:false},
+//                   {location:new google.maps.LatLng(45.3625, 4.6862),stopover:false},
+//                   {location:new google.maps.LatLng(45.5604, 4.66816),stopover:false}],
+//       optimizeWaypoints: true,
+//       travelMode: google.maps.DirectionsTravelMode.DRIVING
+//   };
+//   directionsService.route(request, function(response, status) {
+//       if (status == google.maps.DirectionsStatus.OK) {
+//         directionsDisplay.setDirections(response);
+//         var route = response.routes[0];
+//         var bounds = new google.maps.LatLngBounds();
+//         var route = response.routes[0];
+//         startLocation = new Object();
+//         endLocation = new Object();
+//         var polyline = new google.maps.Polyline({
+//     path: [],
+//     strokeColor: '#000000',
+//     strokeWeight: 3
+//   });
+//   var legs = response.routes[0].legs;
+//       for (i=0;i<legs.length;i++) {
+//         if (i == 0) {
+//           startLocation.latlng = legs[i].start_location;
+//           startLocation.address = legs[i].start_address;
+//         } else {
+//           waypts[i] = new Object();
+//           waypts[i].latlng = legs[i].start_location;
+//           waypts[i].address = legs[i].start_address;
+//         }
+//         endLocation.latlng = legs[i].end_location;
+//         endLocation.address = legs[i].end_address;
+//         var steps = legs[i].steps;
+//         for (j=0;j<steps.length;j++) {
+//           var nextSegment = steps[j].path;
+//           for (k=0;k<nextSegment.length;k++) {
+//             polyline.getPath().push(nextSegment[k]);
+//             bounds.extend(nextSegment[k]);
+//           }
+//         }
+//       }
+//     } else {
+//       alert("directions response "+status);
+//     }
+//   });
+
+// }
+// End drawing a road

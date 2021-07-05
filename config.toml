@@ -1,0 +1,49 @@
+baseURL = "/"
+languageCode = "FR-fr"
+title = "Carte de la résistance climat européenne 2019"
+
+enableRobotsTXT = true
+disableAliases = true
+
+[params]
+disallow_search_engines = false # set robots.txt to disallow everything
+
+# add redirects/headers
+[outputs]
+home          = ["HTML"]
+page          = ["HTML"]
+regionales    = ["HTML"]
+europeennes   = ["HTML"]
+municipales   = ["HTML"]
+
+disableKinds = ["RSS","XML"]
+
+[permalinks]
+  regionales = "regionales/:year/:title"
+  europeennes = "europeennes/:year/:title"
+  municipales = "municipales/:year/:title"
+
+[taxonomies]
+  regionale = "regionales"
+  europeenne = "europeennes"
+  municipale = "municipales"
+
+# remove .{ext} from text/netlify
+[mediaTypes."text/netlify"]
+suffixes = [""]
+delimiter = ""
+
+# add output format for netlify _redirects
+[outputFormats.REDIRECTS]
+mediatype = "text/netlify"
+baseName = "_redirects"
+isPlainText = true
+notAlternative = true
+
+# add output format for netlify _headers
+[outputFormats.HEADERS]
+mediatype = "text/netlify"
+baseName = "_headers"
+isPlainText = true
+notAlternative = true
+

@@ -1,0 +1,20 @@
+{
+  "name": "atlas",
+  "private": true,
+  "scripts": {
+    "start": "hugo server",
+    "build": "hugo && npm run build:functions",
+    "build:functions": "netlify-lambda build assets/lambda",
+    "server": "hugo server"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.2.6",
+    "deepmerge": "^4.2.2",
+    "json-merger": "^1.1.6",
+    "merge-json": "^0.1.0-b.3",
+    "merge-json-file": "^1.0.1",
+    "mergejson": "^1.1.2",
+    "netlify-lambda": "^2.0.10",
+    "postcss-cli": "^8.3.1"
+  }
+}

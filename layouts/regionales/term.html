@@ -1,0 +1,78 @@
+{{- define "main" -}}
+
+// DATAs form Json files in data/
+// "01" "26" "38" "42" "21" "39" "73" "74" "69" "71"
+{{ $communes    := $.Site.Data.regionales }}
+{{ $departement := slice .Data.Term }}
+{{- $context    := . -}}
+
+{{- warnf "Generating Régionales 2021" | safeJS -}}
+
+{{- range $index, $r := where $communes ".Code" "in" $departement -}}
+
+  {{- if and (or (gt .LECO 25) (gt .LUGE 40)) (gt .TotalGauche 0) -}}
+
+    {{- $.Scratch.Set "color" "#d4e1ff" | safeJS -}}
+
+    {{ if (ge .TotalGauche .TotalDroite) }}
+      console.log("gauche: {{ .commune }} - {{ .TotalGauche }}")
+      {{ if or (ge .LUG "40") (and (ge .LUGE "40") (lt .LUG "2")) }} 
+        {{- $.Scratch.Set "color" "#e14380" | safeJS -}}
+      {{ else if (and (ge .LUG "20") (gt .LUG .LUGE )) }}
+        {{- $.Scratch.Set "color" "#EF9ABA" | safeJS -}}
+      {{ else if (ge .LECO  "30") }}
+        {{- $.Scratch.Set "color" "#43693a" | safeJS -}}
+      {{ else if (or (ge .LECO  "25") (ge .LUGE  "30")) }}
+        {{- $.Scratch.Set "color" "#659e58" | safeJS -}}
+      {{ else if (or (ge .LECO  "20") (ge .LUGE  "25")) }}
+        {{- $.Scratch.Set "color" "#c3e1ba" | safeJS -}}
+      {{ else if (ge .LFI "16") }}
+        {{- $.Scratch.Set "color" "#ec364b" | safeJS -}}
+      {{ else if and (or (lt .LECO "15") (lt .LUGE  "10")) }}
+        {{- $.Scratch.Set "color" "#CBE0C7" | safeJS -}}
+      {{ else if and (or (lt .LECO "5") (lt .LUGE  "2")) }}
+        {{- $.Scratch.Set "color" "#DAEBD6" | safeJS -}}
+      {{ else }}
+        {{- $.Scratch.Set "color" "#E7DADF" | safeJS -}}
+      {{- end -}}
+    {{ end }}
+    {{ if (gt .TotalDroite .TotalGauche) }}
+      console.log("droite: {{ .commune }} - {{ .TotalDroite }}")
+      {{ if (ge .LLR "40") }}
+        {{- $.Scratch.Set "color" "#202ae9" | safeJS -}}
+      {{ else if (ge .LLR "30") }}
+        {{- $.Scratch.Set "color" "#4c5ff7" | safeJS -}}
+      {{ else if (ge .LLR  "25") }}
+        {{- $.Scratch.Set "color" "#93a9fd" | safeJS -}}
+      {{ else if ge .LLR  "20" }}
+        {{- $.Scratch.Set "color" "#a8bdfd" | safeJS -}}
+      {{ else if ge .LLR  "15" }}
+        {{- $.Scratch.Set "color" "#becffe" | safeJS -}}
+      {{ else if (ge .LRN "40") }}
+        {{- $.Scratch.Set "color" "#02026b" | safeJS -}}
+      {{ else }}
+        {{- $.Scratch.Set "color" "#d4e1ff" | safeJS -}}
+      {{- end -}}
+    {{ end }}
+
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    {{ partialCached "geojson"  (dict "context" $context "code_insee" .code_insee "color" ($.Scratch.Get "color")) .code_insee ($.Scratch.Get "color") | safeJS }}
+
+        var marker = createMarker(
+          point,
+          "<b>{{ replace .commune "'" "’" }}</b>",
+          "{{ $index }}",
+          {{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS{{ end }}",{{- end -}}
+          {{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}",{{- end -}}
+          "","{{ $.Scratch.Get "color" }}",
+        )
+        // map.data.addListener('click', function(event) {
+        //   infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;"><b>{{ replace .commune "'" "’" }}</b>{{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS{{ end }}",{{- end -}}{{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}{{- end -}}</div>');
+        //   var anchor = new google.maps.MVCObject();
+        //   anchor.set("position",event.latLng);
+        //   infoWindow.open(map,anchor);
+        // });
+  {{ end }}
+{{- end -}}
+{{- end -}}
+
