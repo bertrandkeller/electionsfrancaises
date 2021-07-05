@@ -10,7 +10,7 @@
 
 {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
-  {{- if and (or (gt .LECO 25) (gt .LUGE 40)) (gt .TotalGauche 0) -}}
+  {{- if and (or (gt .LECO 25) (gt .LUGE 40)) (gt .TotalGauche 90) -}}
 
     {{- $.Scratch.Set "color" "#d4e1ff" | safeJS -}}
 

@@ -10,7 +10,7 @@
 
   {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
-    {{ if ge (float .Total) 0 }}
+    {{ if ge (float .Total) 50 }}
 
     {{- $ecovoix := add (float .UEVoixExp) (float .EECOVoixExp) -}}
  

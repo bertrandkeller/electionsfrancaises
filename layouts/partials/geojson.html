@@ -1,7 +1,6 @@
 {{- $communesgeojson := $.context.Site.Data.communesgeojson -}}
-{{- $communesgeo     := $.contextSite.Data.communesgeo -}}
+{{- $communesgeo     := $.context.Site.Data.communesgeo -}}
 {{- $.context.Scratch.Set "geojsonOK" "TRUE" | safeJS -}}
-
 
 {{- range $s := where $communesgeojson.features ".properties.code" "eq" $.code_insee -}}
     {{ if .geometry }}
@@ -12,8 +11,10 @@
 {{- end -}}
 
 {{ if eq ($.context.Scratch.Get "geojsonOK") "FALSE" }}
+{{ if $.code_insee }}
 {{- range where $communesgeo.features ".properties.insee_comm" "eq" $.code_insee -}}
     geojson_Polygon.features.push({"type" : "Feature","properties": {"fill": "{{ $.color }}","stroke-weight": "0.5"},"geometry": {{ .geometry | jsonify }}});
 {{- end -}}
 {{- $.context.context.Scratch.Set "geojsonOK" "TRUE" | safeJS -}}
 {{ end }}
+{{- end -}}
