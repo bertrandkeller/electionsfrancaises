@@ -1,30 +1,21 @@
 
 {{- $communes := $.Site.Data.regionales2021 -}}
 {{- $departement := slice "01" -}}
-{{- $.Scratch.Set "index" 0 -}}
-{{- $.Scratch.Set "geo" "FALSE" }}
+{{- $.Scratch.Set "index" 0 | safeJS  -}}
+{{- $.Scratch.Set "geo" "FALSE" | safeJS }}
 {{- range $index, $r := $communes -}}
-{{- $code := .code_insee -}}
-{{- $commune := .commune -}}
-{{- if not ($.Scratch.Get (printf "%s-%s" .commune $code)) -}}
-  {{- warnf "#%s - %s - %s - %s - %s" (string $index) $code $commune .codenuance (string ($.Scratch.Get "index")) | safeJS -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "commune" .commune -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "abstentions" .abstentions -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "votants" .votants -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "blancs" .blancs -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "code_insee" $code -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "Code" .Code -}}
-  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "inscrits" .inscrits -}}
-  {{- range $s := where $.Site.Data.coordonnees ".code_insee" "eq" (string $code) -}}
-    {{- if and .lat .lon -}}
-    {{- $.Scratch.Set "geo" "TRUE" }}
-    {{- $.Scratch.SetInMap (printf "%s-%s" $commune $code) "lat" (lang.NumFmt 3 .lat) -}}
-    {{- $.Scratch.SetInMap (printf "%s-%s" $commune $code) "lon" (lang.NumFmt 3 .lon) -}}
-    {{- warnf "Found: %s - %s - %s" .code_insee .lat .lon | safeJS -}}
-    {{- end -}}
-  {{- end -}}
-  {{- if eq ($.Scratch.Get "geo") "FALSE" -}}
-    {{- range $s := where $.Site.Data.coordmairies ".code_insee" "eq" (string $code) -}}
+  {{- $code := .code_insee -}}
+  {{- $commune := .commune -}}
+  {{- if not ($.Scratch.Get (printf "%s-%s" .commune $code)) -}}
+    {{- warnf "#%s - %s - %s - %s - %s" (string $index) $code $commune .codenuance (string ($.Scratch.Get "index")) | safeJS -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "commune" .commune -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "abstentions" .abstentions -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "votants" .votants -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "blancs" .blancs -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "code_insee" $code -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "Code" .Code -}}
+    {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "inscrits" .inscrits -}}
+    {{- range $s := where $.Site.Data.coordonnees ".code_insee" "eq" (string $code) -}}
       {{- if and .lat .lon -}}
       {{- $.Scratch.Set "geo" "TRUE" }}
       {{- $.Scratch.SetInMap (printf "%s-%s" $commune $code) "lat" (lang.NumFmt 3 .lat) -}}
@@ -32,19 +23,33 @@
       {{- warnf "Found: %s - %s - %s" .code_insee .lat .lon | safeJS -}}
       {{- end -}}
     {{- end -}}
+    {{- if eq ($.Scratch.Get "geo") "FALSE" -}}
+      {{- range $s := where $.Site.Data.coordmairies ".code_insee" "eq" (string $code) -}}
+        {{- if and .lat .lon -}}
+        {{- $.Scratch.Set "geo" "TRUE" }}
+        {{- $.Scratch.SetInMap (printf "%s-%s" $commune $code) "lat" (lang.NumFmt 3 .lat) -}}
+        {{- $.Scratch.SetInMap (printf "%s-%s" $commune $code) "lon" (lang.NumFmt 3 .lon) -}}
+        {{- warnf "Found: %s - %s - %s" .code_insee .lat .lon | safeJS -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
-{{- end -}}
-{{- $.Scratch.Set "TotalGauche" (cond (not (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalGauche")) 0 (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalGauche")) -}}
+ 
+  {{- $.Scratch.Set "TotalGauche" (cond (not (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalGauche")) 0 (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalGauche")) -}}
   {{- if or (eq .codenuance "LECO") (eq .codenuance "LFI") (eq .codenuance "LUG") (eq .codenuance "LUGE") (eq .codenuance "LSOC") (eq .codenuance "LVEC") (eq .codenuance "LEXG") (eq .codenuance "LDVG") (eq .codenuance "LCOM") -}}
     {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "TotalGauche" (lang.NumFmt 2 ((add (float ($.Scratch.Get "TotalGauche")) (float .voix)))) -}}
   {{- end -}}
+
   {{- $.Scratch.Set "TotalDroite" (cond (not (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalDroite")) 0 (index ($.Scratch.Get (printf "%s-%s" .commune $code)) "TotalDroite")) -}}
   {{- if or (eq .codenuance "LREM") (eq .codenuance "LLR") (eq .codenuance "LRN") (eq .codenuance "LDVD") (eq .codenuance "LMMD") (eq .codenuance "LCMD") (eq .codenuance "LUD") (eq .codenuance "LUCD") (eq .codenuance "LDVC") -}}"
     {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) "TotalDroite" (lang.NumFmt 2 ((add (float ($.Scratch.Get "TotalDroite")) (float .voix)))) -}}
   {{- end -}}
-{{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) (printf "%s" .codenuance) .voix -}}
-{{- $.Scratch.Set "index" (cond (ne ($.Scratch.Get "index") $index) ($.Scratch.Add "index" 1) ($.Scratch.Get "index")) -}}
-{{- $.Scratch.SetInMap "result" (printf "%s-%s" .commune $code) ($.Scratch.Get (printf "%s-%s" .commune $code)) -}}
+
+  {{- $.Scratch.Set (printf "%s" .codenuance) (cond (not (index ($.Scratch.Get (printf "%s-%s" .commune $code)) (printf "%s" .codenuance))) 0 (index ($.Scratch.Get (printf "%s-%s" .commune $code)) (printf "%s" .codenuance))) -}}
+  {{- $.Scratch.SetInMap (printf "%s-%s" .commune $code) (printf "%s" .codenuance) (lang.NumFmt 2 ((add (float ($.Scratch.Get (printf "%s" .codenuance))) (float .voix)))) -}}
+
+  {{- $.Scratch.Set "index" (cond (ne ($.Scratch.Get "index") $index) ($.Scratch.Add "index" 1) ($.Scratch.Get "index")) -}}
+  {{- $.Scratch.SetInMap "result" (printf "%s-%s" .commune $code) ($.Scratch.Get (printf "%s-%s" .commune $code)) -}}
 {{- end -}}
 [
 {{- range $index, $value := ($.Scratch.Get "result") -}}

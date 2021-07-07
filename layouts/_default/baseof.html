@@ -86,11 +86,6 @@
                   // Cluster
                   var mcOptions = {gridSize: 50, maxZoom: 8, imagePath: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m'};
                   var markerclusterer = new MarkerClusterer(map, gmarkers, mcOptions);
-                  for (var i = 0; i < gmarkers.length; ++i) {
-                      bounds.extend(this.gmarkers[i].position);
-                  }
-                  map.fitBounds(bounds);
-
                 };
             </script>
 

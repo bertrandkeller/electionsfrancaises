@@ -5,13 +5,16 @@
 {{ $communes    := $.Site.Data.regionales }}
 {{ $departement := slice .Data.Term }}
 {{- $context    := . -}}
-{{ $score := cond (eq (getenv "HUGO_ENV") "production") 15 27 }}
+{{ $score := cond (eq (getenv "HUGO_ENV") "production") 15 20 }}
+{{ $.Scratch.Set "exist" "FALSE" | safeJS }}
 
 {{- warnf "Generating Régionales 2021" | safeJS -}}
 
 {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
   {{- if or (or (gt .LECO $score) (gt .LUGE 50)) (and (gt .LUG 5) (gt .LUGE $score)) -}}
+
+  {{ $.Scratch.Set "exist" "TRUE" | safeJS }}
 
     {{- $.Scratch.Set "color" "#d4e1ff" | safeJS -}}
 
@@ -66,13 +69,20 @@
           {{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭 &nbsp;{{ . }}% LLR{{ end }}{{ with .LUCD }}<br>🏭 &nbsp;{{ . }}% LUCD{{ end }}{{ with .LUD }}<br>🏭 &nbsp;{{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭 &nbsp;{{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓  &nbsp;{{ . }}% LRN{{ end }}{{ if gt .LECO $score }}<br>🍏 &nbsp;{{ .LECO }}% LECO{{ end }}{{ if gt .LUGE $score }}<br>🍀 &nbsp;{{ .LUGE }}% PS + ECO{{ end }}",{{- end -}}
           "","{{ $.Scratch.Get "color" }}",
         )
-        // map.data.addListener('click', function(event) {
+        {{/* // map.data.addListener('click', function(event) {
         //   infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;"><b>{{ replace .commune "'" "’" }}</b>{{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS + ECO{{ end }}",{{- end -}}{{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}{{- end -}}</div>');
         //   var anchor = new google.maps.MVCObject();
         //   anchor.set("position",event.latLng);
         //   infoWindow.open(map,anchor);
         // });
+        */}}
   {{ end }}
 {{- end -}}
+{{ if eq ($.Scratch.Get "exist") "TRUE" }}
+  for (var i = 0; i < gmarkers.length; ++i) {
+      bounds.extend(this.gmarkers[i].position);
+  }
+  map.fitBounds(bounds);
+  {{ end }}
 {{- end -}}
 

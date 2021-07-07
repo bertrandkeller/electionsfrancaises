@@ -5,6 +5,7 @@
   {{ $departement := slice .Data.Term }}
   {{- $context := . -}}
   {{ $score := cond (eq (getenv "HUGO_ENV") "production") 30 50 }}
+  {{ $.Scratch.Set "exist" "FALSE" | safeJS }}
 
   {{- $labelsgeojson := $.Site.Data.labels -}}
   {{- warnf "Generating Européennes 2019" | safeJS -}}
@@ -12,6 +13,7 @@
   {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
     {{ if ge (float .Total) $score }}
+    {{ $.Scratch.Set "exist" "TRUE" | safeJS }}
 
     {{- $ecovoix := add (float .UEVoixExp) (float .EECOVoixExp) -}}
 
@@ -50,6 +52,13 @@
     )
   {{ end }}
   {{- end -}}
+
+  {{- if eq ($.Scratch.Get "exist") "TRUE" -}}
+    for (var i = 0; i < gmarkers.length; ++i) {
+        bounds.extend(this.gmarkers[i].position);
+    }
+    map.fitBounds(bounds);
+  {{ end }}
 {{- end -}}
 
 {{- define "sidebar" -}}
