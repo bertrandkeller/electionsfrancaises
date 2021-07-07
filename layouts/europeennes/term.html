@@ -4,16 +4,17 @@
   {{ $communes := $.Site.Data.commune }}
   {{ $departement := slice .Data.Term }}
   {{- $context := . -}}
+  {{ $score := cond (eq (getenv "HUGO_ENV") "production") 30 50 }}
 
   {{- $labelsgeojson := $.Site.Data.labels -}}
   {{- warnf "Generating Européennes 2019" | safeJS -}}
 
   {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
-    {{ if ge (float .Total) 50 }}
+    {{ if ge (float .Total) $score }}
 
     {{- $ecovoix := add (float .UEVoixExp) (float .EECOVoixExp) -}}
- 
+
     {{ if ge $ecovoix  "25" }}
       {{- $.Scratch.Set "color" "#43693a" | safeJS -}}
     {{ else if ge $ecovoix  "20" }}
@@ -34,7 +35,7 @@
       {{- $.Scratch.Set "color" "#f7f8e6" | safeJS -}}
     {{- end -}}
 
-    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune  "lat" .lat  "lon" .lon) .code_insee .commune | safeJS }}
     {{ partialCached "geojson"  (dict "context" $context "code_insee" .code_insee "color" ($.Scratch.Get "color")) .code_insee ($.Scratch.Get "color") | safeJS }}
 
     document.getElementById("side-bar-content").innerHTML = side_bar_html;
@@ -43,7 +44,7 @@
         point,
         "<b>{{ replace .commune "'" "’" }}</b> <small>{{ replace .departement "'" "’" }}</small>",
         "{{ $index }}",
-        "<strong>{{ .commune }}</strong><br>🍏  {{ .EECOVoixExp }}% EECO<br>🥵  {{ .UEVoixExp }}% UE<br>🚩  {{ .FIVoixExp }}% FI<br>🌿  {{ .UPRVoixExp }}% UPR<br>📉  {{ .D2019VoixExp }}% Décroissants<br>🌸  {{ .EEVoixExp }}% PS<br>",
+        "<strong>{{ .commune }}</strong><br>🍏 &nbsp;{{ .EECOVoixExp }}% EECO<br>🥵 &nbsp;{{ .UEVoixExp }}% UE<br>🚩 &nbsp;{{ .FIVoixExp }}% FI<br>🌿 &nbsp;{{ .UPRVoixExp }}% UPR<br>📉 &nbsp;{{ .D2019VoixExp }}% Décroissants<br>🌸 &nbsp;{{ .EEVoixExp }}% PS<br>",
         "",
         "{{ $.Scratch.Get "color" }}",
     )
@@ -52,12 +53,12 @@
 {{- end -}}
 
 {{- define "sidebar" -}}
-<div class="side-bar hide"> 
+<div class="side-bar hide">
   <h1>Carte des votes radicaux<br><small>Les Européennes 2019</small></h1>
   <p><small><strong>Note :</strong> carte non scientifique qui émane d’une envie personnelle de faire ressortir les communes les plus radicales sur la question du climat. <a href="/2019/07/05/carte-europeenne-2019-urgence-climat/">Pourquoi cette carte ?</a></small></p>
   <p>
     Plus fort du cumul des scores des partis :<br>
-    <small>🍏 EECO / 🥵 UE / 🚩 FI / 🌿 UPR / 📉 Décroissants</small><br>
+    <small>🍏&nbsp;EECO / 🥵&nbsp;UE / 🚩&nbsp;FI / 🌿&nbsp;UPR / 📉 Décroissants</small><br>
     <small><em>Cliquez sur le nom d’une commune pour afficher ses scores</em></small>
   </p>
   <p><small>

@@ -5,18 +5,19 @@
 {{ $communes    := $.Site.Data.regionales }}
 {{ $departement := slice .Data.Term }}
 {{- $context    := . -}}
+{{ $score := cond (eq (getenv "HUGO_ENV") "production") 15 27 }}
 
 {{- warnf "Generating Régionales 2021" | safeJS -}}
 
 {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
-  {{- if and (or (gt .LECO 25) (gt .LUGE 40)) (gt .TotalGauche 90) -}}
+  {{- if or (or (gt .LECO $score) (gt .LUGE 50)) (and (gt .LUG 5) (gt .LUGE $score)) -}}
 
     {{- $.Scratch.Set "color" "#d4e1ff" | safeJS -}}
 
     {{ if (ge .TotalGauche .TotalDroite) }}
       console.log("gauche: {{ .commune }} - {{ .TotalGauche }}")
-      {{ if or (ge .LUG "40") (and (ge .LUGE "40") (lt .LUG "2")) }} 
+      {{ if or (ge .LUG "40") (and (ge .LUGE "40") (lt .LUG "2")) }}
         {{- $.Scratch.Set "color" "#e14380" | safeJS -}}
       {{ else if (and (ge .LUG "20") (gt .LUG .LUGE )) }}
         {{- $.Scratch.Set "color" "#EF9ABA" | safeJS -}}
@@ -37,7 +38,6 @@
       {{- end -}}
     {{ end }}
     {{ if (gt .TotalDroite .TotalGauche) }}
-      console.log("droite: {{ .commune }} - {{ .TotalDroite }}")
       {{ if (ge .LLR "40") }}
         {{- $.Scratch.Set "color" "#202ae9" | safeJS -}}
       {{ else if (ge .LLR "30") }}
@@ -55,19 +55,19 @@
       {{- end -}}
     {{ end }}
 
-    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
+    {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune "lat" .lat "lon" .lon) .code_insee .commune .lat .lon | safeJS }}
     {{ partialCached "geojson"  (dict "context" $context "code_insee" .code_insee "color" ($.Scratch.Get "color")) .code_insee ($.Scratch.Get "color") | safeJS }}
 
         var marker = createMarker(
           point,
           "<b>{{ replace .commune "'" "’" }}</b>",
           "{{ $index }}",
-          {{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS{{ end }}",{{- end -}}
-          {{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}",{{- end -}}
+          {{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏 &nbsp;{{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩 &nbsp;{{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸 &nbsp;{{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀 &nbsp;{{ . }}% PS + ECO{{ end }}",{{- end -}}
+          {{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭 &nbsp;{{ . }}% LLR{{ end }}{{ with .LUCD }}<br>🏭 &nbsp;{{ . }}% LUCD{{ end }}{{ with .LUD }}<br>🏭 &nbsp;{{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭 &nbsp;{{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓  &nbsp;{{ . }}% LRN{{ end }}{{ if gt .LECO $score }}<br>🍏 &nbsp;{{ .LECO }}% LECO{{ end }}{{ if gt .LUGE $score }}<br>🍀 &nbsp;{{ .LUGE }}% PS + ECO{{ end }}",{{- end -}}
           "","{{ $.Scratch.Get "color" }}",
         )
         // map.data.addListener('click', function(event) {
-        //   infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;"><b>{{ replace .commune "'" "’" }}</b>{{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS{{ end }}",{{- end -}}{{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}{{- end -}}</div>');
+        //   infoWindow.setContent('<div style="line-height:1.35;overflow:hidden;white-space:nowrap;"><b>{{ replace .commune "'" "’" }}</b>{{- if (ge .TotalGauche .TotalDroite) -}}"<strong>{{ .commune }}</strong>{{ with .LECO }}<br>🍏  {{ . }}% LECO{{ end }}{{ with .LFI }}<br>🚩  {{ . }}% FI{{ end }}{{ with .LUG }}<br>🌸  {{ . }}% PS{{ end }}{{ with .LUGE }}<br>🍀  {{ . }}% PS + ECO{{ end }}",{{- end -}}{{- if (gt .TotalDroite .TotalGauche) -}}"<strong>{{ .commune }}</strong>{{ with .LLR }}<br>🏭  {{ . }}% LLR{{ end }}{{ with .LUD }}<br>🏭  {{ . }}% LUD{{ end }}{{ with .LDVC }}<br>🏭   {{ . }}% LDVC{{ end }}{{ with .LRN }}<br>🚓 {{ . }}% LRN{{ end }}{{- end -}}</div>');
         //   var anchor = new google.maps.MVCObject();
         //   anchor.set("position",event.latLng);
         //   infoWindow.open(map,anchor);

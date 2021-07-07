@@ -2,11 +2,12 @@
   {{- $municipales2020 := $.Site.Data.municipales2020 -}}
   {{- warnf "Generating Municipales 2020" | safeJS -}}
   {{- $parti := (slice "LVEC" "LFI" "LECO") -}}
+  {{ $score := cond (eq (getenv "HUGO_ENV") "production") 10 20 }}
   {{- $context := . -}}
 
   {{ range $index, $p := (where $municipales2020 ".codenuance1" "in" $parti) }}
     {{ $percent := math.Round (mul (div (float .voix1) (float .votants)) 100) }}
-    {{ if ge $percent 20 }}
+    {{ if ge $percent $score }}
     {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
     var marker = createMarker(
         point,
@@ -21,7 +22,7 @@
 
   {{ range $index, $p := (where $municipales2020 ".codenuance2" "in" $parti) }}
   {{ $percent := math.Round (mul (div (float .voix2) (float .votants)) 100) }}
-    {{ if ge $percent 20 }}
+    {{ if ge $percent $score }}
     {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
     var marker = createMarker(
         point,
@@ -36,7 +37,7 @@
 
   {{ range $index, $p := (where $municipales2020 ".codenuance3" "in" $parti) }}
   {{ $percent := math.Round (mul (div (float .voix3) (float .votants)) 100) }}
-    {{ if ge $percent 20 }}
+    {{ if ge $percent $score }}
     {{ partialCached "location" (dict "context" $context "code_insee" .code_insee "commune" .commune) .code_insee .commune | safeJS }}
     var marker = createMarker(
         point,

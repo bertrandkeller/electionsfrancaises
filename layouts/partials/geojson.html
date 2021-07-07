@@ -15,6 +15,6 @@
 {{- range where $communesgeo.features ".properties.insee_comm" "eq" $.code_insee -}}
     geojson_Polygon.features.push({"type" : "Feature","properties": {"fill": "{{ $.color }}","stroke-weight": "0.5"},"geometry": {{ .geometry | jsonify }}});
 {{- end -}}
-{{- $.context.context.Scratch.Set "geojsonOK" "TRUE" | safeJS -}}
+{{- $.context.Scratch.Set "geojsonOK" "TRUE" | safeJS -}}
 {{ end }}
 {{- end -}}

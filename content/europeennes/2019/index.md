@@ -3,6 +3,7 @@
 title: "Européennes 2019"
 date: 2019-03-17T18:18:43Z
 url: "europeennes/2019/"
+draft: false
 europeennes:
   - "01"
   - "02"

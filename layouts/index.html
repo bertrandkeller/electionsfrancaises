@@ -9,9 +9,9 @@
             <div class="wrapper">
                 <h1 class="text-center">Cartographie des élections françaises</h1>
                 <br>
-                <ul class="list-unstyled text-center">
+                <ul class="list-unstyled">
                   {{ range .Site.RegularPages }}
-                    <li><h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2><hr></li>
+                    <li><a class="card-inline card-shadow" href="{{ .Permalink }}"><h3>{{ .Title }}</h3></a></li>
                   {{ end }}
                 </ul>
             </div>

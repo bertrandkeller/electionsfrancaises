@@ -4,13 +4,13 @@
   <head>
     {{ partial "site/head" . }}
   </head>
-    <body style="margin:0px; padding:0px;" onload="initialize()">
+    <body>
         <main class="site-main" role="main">
             <div class="wrapper">
                 <h1 class="text-center">Cartographie des élections françaises</h1>
                 <br><br>
                 {{- range $index, $value := .Params.europeennes -}}
-                {{- if ne $index 0 -}}, {{ end }}<strong><a href="{{ . }}">{{ . }}</a></strong>
+                {{ if ne $index 0 }} / {{ end }}<strong><a href="{{ . }}">{{ . }} - {{ (index (where $.Site.Data.departementsregion "num" "eq" .) 0).dep }}</a></strong>
                 {{- end -}}
             </div>
         </main>

@@ -2,17 +2,27 @@
 {{- $.context.Scratch.Set "latOK" "FALSE" | safeJS -}}
 {{- warnf "---------" | safeJS -}}
 
-{{- if .geo.lat -}}{{- if not (eq .geo.lat "#N/A") -}}
+{{- if .lat -}}{{- if not (eq .lat "#N/A") -}}
   {{- warnf "%s : %s - %s <= in files" $.context.Section $.code_insee $.commune | safeJS -}}
   {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
-  var point = new google.maps.LatLng("{{ .geo.lat }}", "{{ .geo.lon }}");
+  var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
 {{- end -}}{{ end }}
 
 {{ if eq ($.context.Scratch.Get "latOK") "FALSE" }}
   {{- range $s := where $.context.Site.Data.coordonnees ".code_insee" "eq" (string $.code_insee) -}}
-    {{ if .latitude }}
+    {{ if and .lat .lon }}
       {{- warnf "%s : %s - %s <= coordonnees.json" $.context.Section $.code_insee $.commune | safeJS -}}
-      var point = new google.maps.LatLng("{{ .latitude }}", "{{ .longitude }}");
+      var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
+      {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{ if eq ($.context.Scratch.Get "latOK") "FALSE" }}
+  {{- range $s := where $.context.Site.Data.coordmairies ".code_insee" "eq" (string $.code_insee) -}}
+  {{ if and .lat .lon }}
+      {{- warnf "%s : %s - %s <= coordmairies.json" $.context.Section $.code_insee $.commune | safeJS -}}
+      var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
       {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
     {{- end -}}
   {{- end -}}
