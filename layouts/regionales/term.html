@@ -5,8 +5,8 @@
 {{ $communes    := $.Site.Data.regionales }}
 {{ $departement := slice .Data.Term }}
 {{- $context    := . -}}
-{{ $score := cond (eq (getenv "HUGO_ENV") "production") 0 50 }}
-{{ $score2 := cond (eq (getenv "HUGO_ENV") "production") 0 50 }}
+{{ $score := cond (eq (getenv "HUGO_ENV") "production") 10 50 }}
+{{ $score2 := cond (eq (getenv "HUGO_ENV") "production") 15 50 }}
 {{ $.Scratch.Set "exist" "FALSE" | safeJS }}
 
 {{- warnf "Generating Régionales 2021" | safeJS -}}
