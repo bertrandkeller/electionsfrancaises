@@ -5,14 +5,15 @@
 {{ $communes    := $.Site.Data.regionales }}
 {{ $departement := slice .Data.Term }}
 {{- $context    := . -}}
-{{ $score := cond (eq (getenv "HUGO_ENV") "production") 0 10 }}
+{{ $score := cond (eq (getenv "HUGO_ENV") "production") 0 50 }}
+{{ $score2 := cond (eq (getenv "HUGO_ENV") "production") 0 50 }}
 {{ $.Scratch.Set "exist" "FALSE" | safeJS }}
 
 {{- warnf "Generating Régionales 2021" | safeJS -}}
 
 {{- range $index, $r := where $communes ".Code" "in" $departement -}}
 
-  {{- if or (or (gt .LECO $score) (gt .LUGE 50)) (and (gt .LUG 5) (gt .LUGE (add $score 35))) -}}
+  {{- if or (or (gt .LECO $score) (gt .LUGE 50)) (and (gt .LUG 5) (gt .LUGE (add $score $score))) -}}
 
   {{ $.Scratch.Set "exist" "TRUE" | safeJS }}
 
