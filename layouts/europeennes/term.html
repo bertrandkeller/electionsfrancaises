@@ -4,7 +4,7 @@
   {{ $communes := $.Site.Data.commune }}
   {{ $departement := slice .Data.Term }}
   {{- $context := . -}}
-  {{ $score := cond (eq (getenv "HUGO_ENV") "production") 30 50 }}
+  {{ $score := cond (eq (getenv "HUGO_ENV") "production") 25 55 }}
   {{ $.Scratch.Set "exist" "FALSE" | safeJS }}
 
   {{- $labelsgeojson := $.Site.Data.labels -}}

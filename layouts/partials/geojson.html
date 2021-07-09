@@ -21,11 +21,11 @@
 {{- end -}}
 
 {{ if eq ($.context.Scratch.Get "geojsonOK") "FALSE" }}
-  {{- range $s := where $arrondissements.features ".properties.code_insee" "eq" $.code_insee -}} 
+  {{- range $s := where $arrondissements.features ".properties.code_insee" "eq" $.code_insee -}}
   {{ if .geometry }}
   geojson_Polygon.features.push({"type" : "Feature","properties": {"fill": "{{ $.color }}","stroke-weight": "0.5"},"geometry": {{ .geometry | jsonify }}});
   {{ else }}
-  {{- $.context.Scratch.Set "geojsonOK" "FALSE" | safeJS -}}
+  {{- $.context.Scratch.Set "geojsonOK" "FALSE" | safeJS -}} 
   {{ end }}
   {{- end -}}
 {{- end -}}

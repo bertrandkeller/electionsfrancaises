@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ .Site.LanguageCode | default "en" }}">
+<html lang="{{ .Site.LanguageCode | default "en" }}" class="map">
     <head>
         {{ block "site/meta" . }}{{ partial "site/meta.html" . }}{{ end }}
         {{ partial "site/head" . }}
@@ -16,76 +16,9 @@
 
                 // Create the map
                 function initialize() {
-                  directionsDisplay = new google.maps.DirectionsRenderer();
-                  geocoder = new google.maps.Geocoder();
-                  var bounds = new google.maps.LatLngBounds();
-                  infoWindow = new google.maps.InfoWindow({
-                    content: ""
-                  });
-                  // Options
-                  var myOptions = {
-                    zoom: 7,
-                    //center: new google.maps.LatLng(46.6207972, 4.8430915),
-                    //center: new google.maps.LatLng(4.833333,46.3),
-                    center: new google.maps.LatLng(46.533, 2.183),
-                    mapTypeControl: false,
-                    mapTypeControlOptions: {
-                      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-                      mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain','styled_map']
-                    },
-                    navigationControl: true,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
-                    // API_Key = AIzaSyBUzX9F8nEyUmKBJ0u4YNuKAeXT2RfkpZE
-                  }
-                  // Map
-                  map = new google.maps.Map(document.getElementById("map-canvas"),myOptions);
-
-                  // Set styles for the map
-                  map.data.setStyle(function(feature) {
-                    var color = 'gray';
-                    return /** @type {!google.maps.Data.StyleOptions} */({
-                      fillColor: feature.getProperty('fill'),
-                      strokeColor: "555",
-                      strokeWeight: feature.getProperty('stroke-weight'),
-                      fillOpacity: 0.6 //map.getZoom()<4?1:.1 // set the opacity to 1 when zoom<4 - otherwise set it to .1
-                    });
-                  });
-
-                  map.set('lastZoom',map.getZoom());
-
-                  google.maps.event.addListener(map,'zoom_changed',function(){
-                    //do we need to update the style?
-                    if(this.getZoom()<4!==this.get('lastZoom')<4){
-                      map.data.setStyle(map.data.getStyle());
-                    }
-                    //update the property
-                    this.set('lastZoom',this.getZoom());
-                  });
-
-                  // Event on polygon hover
-                  map.data.addListener('mouseover', function(event) {
-                    map.data.revertStyle();
-                    map.data.overrideStyle(event.feature, {strokeWeight: 2});
-                  });
-                  map.data.addListener('mouseout', function(event) {
-                    map.data.revertStyle();
-                  });
-
-                  // Associate the styled map with the MapTypeId and set it to display.
-                  map.mapTypes.set('styled_map', styledMapType);
-                  map.setMapTypeId('styled_map');
-
-                  google.maps.event.addListener(map, 'click', function() {
-                    infowindow.close();
-                  });
-
+                  {{ partial "js-map-top.html" . | safeJS }}
                   {{ block "main" . }}{{ end }}
-
-                  map.data.addGeoJson(geojson_Polygon);
-
-                  // Cluster
-                  var mcOptions = {gridSize: 50, maxZoom: 8, imagePath: 'https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m'};
-                  var markerclusterer = new MarkerClusterer(map, gmarkers, mcOptions);
+                  {{ partial "js-map-bottom.html" . | safeJS }}
                 };
             </script>
 

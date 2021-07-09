@@ -5,14 +5,14 @@
 {{- if .lat -}}{{- if not (eq .lat "#N/A") -}}
   {{- warnf "%s : %s - %s <= in files" $.context.Section $.code_insee $.commune | safeJS -}}
   {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
-  var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
+  var point = new google.maps.LatLng("{{ .lat | safeJS }}", "{{ .lon | safeJS }}");
 {{- end -}}{{ end }}
 
 {{ if eq ($.context.Scratch.Get "latOK") "FALSE" }}
   {{- range $s := where $.context.Site.Data.coordonnees ".code_insee" "eq" (string $.code_insee) -}}
     {{ if and .lat .lon }}
       {{- warnf "%s : %s - %s <= coordonnees.json" $.context.Section $.code_insee $.commune | safeJS -}}
-      var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
+      var point = new google.maps.LatLng("{{ .lat | safeJS }}", "{{ .lon | safeJS }}");
       {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
     {{- end -}}
   {{- end -}}
@@ -22,7 +22,7 @@
   {{- range $s := where $.context.Site.Data.coordmairies ".code_insee" "eq" (string $.code_insee) -}}
   {{ if and .lat .lon }}
       {{- warnf "%s : %s - %s <= coordmairies.json" $.context.Section $.code_insee $.commune | safeJS -}}
-      var point = new google.maps.LatLng("{{ .lat }}", "{{ .lon }}");
+      var point = new google.maps.LatLng("{{ .lat | safeJS }}", "{{ .lon | safeJS }}");
       {{- $.context.Scratch.Set "latOK" "TRUE" | safeJS -}}
     {{- end -}}
   {{- end -}}

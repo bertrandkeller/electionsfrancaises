@@ -5,7 +5,7 @@
     {{ partial "site/head" . }}
   </head>
     <body>
-        <main class="site-main" role="main">
+        <main>
             <div class="wrapper">
                 <h1 class="text-center">Cartographie des élections françaises</h1>
                 <br><br>
@@ -13,6 +13,7 @@
                 {{ if ne $index 0 }} / {{ end }}<strong><a href="{{ . }}">{{ . }} - {{ (index (where $.Site.Data.departementsregion "num" "eq" .) 0).dep }}</a></strong>
                 {{- end -}}
             </div>
+            <div id="container"></div>
         </main>
     </body>
 </html>
