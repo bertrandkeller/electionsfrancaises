@@ -17,6 +17,14 @@
                 // Create the map
                 function initialize() {
                   {{ partial "js-map-top.html" . | safeJS }}
+                  google.maps.event.addListener(map,'zoom_changed',function(){
+                    //do we need to update the style?
+                    if(this.getZoom() < 4 !== this.get('lastZoom') < 4){
+                      map.data.setStyle(map.data.getStyle());
+                    }
+                    //update the property
+                    this.set('lastZoom',this.getZoom())
+                  });
                   {{ block "main" . }}{{ end }}
                   {{ partial "js-map-bottom.html" . | safeJS }}
                 };
